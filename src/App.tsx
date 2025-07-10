@@ -6,6 +6,10 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import UserManagement from "./pages/UserManagement";
+import WarehouseManagement from "./pages/WarehouseManagement";
+import Reports from "./pages/Reports";
+import AuditTrail from "./pages/AuditTrail";
 import MainLayout from "./components/layout/MainLayout";
 import NotFound from "./pages/NotFound";
 
@@ -80,17 +84,19 @@ const App = () => (
               </ProtectedRoute>
             }>
               <Route path="dashboard" element={<Dashboard />} />
+              {/* Admin routes */}
+              <Route path="users" element={<UserManagement />} />
+              <Route path="warehouses" element={<WarehouseManagement />} />
+              <Route path="reports" element={<Reports />} />
+              <Route path="audit-trail" element={<AuditTrail />} />
+              
               {/* Placeholder routes for future pages */}
-              <Route path="users" element={<div className="p-6 text-foreground">User Management - Coming Soon</div>} />
-              <Route path="warehouses" element={<div className="p-6 text-foreground">Warehouse Management - Coming Soon</div>} />
               <Route path="products" element={<div className="p-6 text-foreground">Product Management - Coming Soon</div>} />
               <Route path="inventory" element={<div className="p-6 text-foreground">Inventory Management - Coming Soon</div>} />
               <Route path="purchase-orders" element={<div className="p-6 text-foreground">Purchase Orders - Coming Soon</div>} />
               <Route path="sales-orders" element={<div className="p-6 text-foreground">Sales Orders - Coming Soon</div>} />
               <Route path="suppliers" element={<div className="p-6 text-foreground">Supplier Management - Coming Soon</div>} />
               <Route path="product-catalog" element={<div className="p-6 text-foreground">Product Catalog - Coming Soon</div>} />
-              <Route path="reports" element={<div className="p-6 text-foreground">Reports - Coming Soon</div>} />
-              <Route path="audit-trail" element={<div className="p-6 text-foreground">Audit Trail - Coming Soon</div>} />
             </Route>
             
             {/* Catch-all route */}
