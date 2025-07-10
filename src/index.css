@@ -2,57 +2,56 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
-
+/* Adept Invento Design System - Modern Inventory Management */
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
+    /* Core Background & Text Colors */
+    --background: 0 0% 100%; /* Pure white */
+    --foreground: 210 100% 18%; /* Deep navy blue #002B5B */
+    
+    /* Card & Panel Colors */
+    --card: 0 0% 100%; /* Pure white */
+    --card-foreground: 210 100% 18%; /* Deep navy blue */
+    --card-accent: 186 40% 69%; /* Soft cyan #9ACBD0 for card backgrounds */
+    
+    /* Primary Brand Colors */
+    --primary: 178 74% 31%; /* Teal #159895 for primary buttons */
+    --primary-foreground: 0 0% 100%; /* White text on primary */
+    --primary-hover: 192 61% 29%; /* Dark cyan #1A5F7A for hover states */
+    
+    /* Secondary Colors */
+    --secondary: 186 40% 69%; /* Soft cyan #9ACBD0 for secondary buttons */
+    --secondary-foreground: 210 100% 18%; /* Deep navy blue text */
+    --secondary-text: 192 61% 29%; /* Dark cyan #1A5F7A for subheadings */
+    
+    /* Accent Colors */
+    --accent: 170 49% 55%; /* Mint aqua #57C5B6 for highlights */
+    --accent-foreground: 0 0% 100%; /* White text on accent */
+    
+    /* Navigation & Sidebar */
+    --sidebar-background: 210 100% 18%; /* Deep navy blue #002B5B */
+    --sidebar-foreground: 0 0% 100%; /* White text */
+    --sidebar-accent: 170 49% 55%; /* Mint aqua for active states */
+    --sidebar-border: 192 61% 29%; /* Dark cyan borders */
+    
+    /* Input & Border Colors */
+    --input: 0 0% 100%; /* White background */
+    --border: 186 40% 69%; /* Soft cyan borders */
+    --ring: 178 74% 31%; /* Teal focus rings */
+    
+    /* Utility Colors */
+    --muted: 186 40% 69%; /* Soft cyan */
+    --muted-foreground: 192 61% 29%; /* Dark cyan */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    /* Layout */
     --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    
+    /* Status Colors */
+    --success: 170 49% 55%; /* Mint aqua for success states */
+    --warning: 45 93% 58%; /* Amber for warnings */
+    --error: 0 84% 60%; /* Red for errors */
   }
 
   .dark {
