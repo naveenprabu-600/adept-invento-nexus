@@ -15,6 +15,7 @@ import InventoryManagement from "./pages/InventoryManagement";
 import PurchaseOrders from "./pages/PurchaseOrders";
 import SalesOrders from "./pages/SalesOrders";
 import SupplierManagement from "./pages/SupplierManagement";
+import ProductCatalog from "./pages/ProductCatalog";
 import MainLayout from "./components/layout/MainLayout";
 import NotFound from "./pages/NotFound";
 
@@ -101,7 +102,7 @@ const App = () => (
               <Route path="purchase-orders" element={<PurchaseOrders />} />
               <Route path="sales-orders" element={<SalesOrders />} />
               <Route path="suppliers" element={<SupplierManagement />} />
-              <Route path="product-catalog" element={<div className="p-6 text-foreground">Product Catalog - Coming Soon</div>} />
+              <Route path="product-catalog" element={<ProductCatalog />} />
             </Route>
             
             {/* Catch-all route */}
