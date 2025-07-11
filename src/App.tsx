@@ -10,6 +10,11 @@ import UserManagement from "./pages/UserManagement";
 import WarehouseManagement from "./pages/WarehouseManagement";
 import Reports from "./pages/Reports";
 import AuditTrail from "./pages/AuditTrail";
+import ProductManagement from "./pages/ProductManagement";
+import InventoryManagement from "./pages/InventoryManagement";
+import PurchaseOrders from "./pages/PurchaseOrders";
+import SalesOrders from "./pages/SalesOrders";
+import SupplierManagement from "./pages/SupplierManagement";
 import MainLayout from "./components/layout/MainLayout";
 import NotFound from "./pages/NotFound";
 
@@ -90,12 +95,12 @@ const App = () => (
               <Route path="reports" element={<Reports />} />
               <Route path="audit-trail" element={<AuditTrail />} />
               
-              {/* Placeholder routes for future pages */}
-              <Route path="products" element={<div className="p-6 text-foreground">Product Management - Coming Soon</div>} />
-              <Route path="inventory" element={<div className="p-6 text-foreground">Inventory Management - Coming Soon</div>} />
-              <Route path="purchase-orders" element={<div className="p-6 text-foreground">Purchase Orders - Coming Soon</div>} />
-              <Route path="sales-orders" element={<div className="p-6 text-foreground">Sales Orders - Coming Soon</div>} />
-              <Route path="suppliers" element={<div className="p-6 text-foreground">Supplier Management - Coming Soon</div>} />
+              {/* Manager routes */}
+              <Route path="products" element={<ProductManagement />} />
+              <Route path="inventory" element={<InventoryManagement />} />
+              <Route path="purchase-orders" element={<PurchaseOrders />} />
+              <Route path="sales-orders" element={<SalesOrders />} />
+              <Route path="suppliers" element={<SupplierManagement />} />
               <Route path="product-catalog" element={<div className="p-6 text-foreground">Product Catalog - Coming Soon</div>} />
             </Route>
             
