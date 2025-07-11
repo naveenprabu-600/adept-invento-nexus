@@ -12,6 +12,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Bell, LogOut, Settings, User } from 'lucide-react';
 import ChatWidget from '@/components/ui/chat-widget';
+import { ThemeToggle } from '@/components/theme/theme-toggle';
 
 const Header = () => {
   const { user, logout } = useAuth();
@@ -32,6 +33,9 @@ const Header = () => {
 
       {/* Right side */}
       <div className="flex items-center space-x-4">
+        {/* Theme Toggle */}
+        <ThemeToggle />
+        
         {/* Notifications */}
         <Button variant="ghost" size="sm" className="relative">
           <Bell className="h-5 w-5 text-foreground" />
