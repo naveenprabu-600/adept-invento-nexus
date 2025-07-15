@@ -14,7 +14,8 @@ import {
   BarChart3,
   ChevronLeft,
   ChevronRight,
-  Package2
+  Package2,
+  TrendingUp
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -33,6 +34,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggle }) => {
     { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
     { icon: Users, label: 'User Management', href: '/users' },
     { icon: Warehouse, label: 'Warehouse Management', href: '/warehouses' },
+    { icon: TrendingUp, label: 'Demand Forecasting', href: '/demand-forecasting' },
     { icon: FileText, label: 'Reports', href: '/reports' },
     { icon: ClipboardList, label: 'Audit Trail', href: '/audit-trail' },
   ];

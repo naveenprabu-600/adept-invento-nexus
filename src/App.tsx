@@ -9,6 +9,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import UserManagement from "./pages/UserManagement";
 import WarehouseManagement from "./pages/WarehouseManagement";
+import DemandForecasting from "./pages/DemandForecasting";
 import Reports from "./pages/Reports";
 import AuditTrail from "./pages/AuditTrail";
 import ProductManagement from "./pages/ProductManagement";
@@ -95,6 +96,7 @@ const App = () => (
               {/* Admin routes */}
               <Route path="users" element={<UserManagement />} />
               <Route path="warehouses" element={<WarehouseManagement />} />
+              <Route path="demand-forecasting" element={<DemandForecasting />} />
               <Route path="reports" element={<Reports />} />
               <Route path="audit-trail" element={<AuditTrail />} />
               
