@@ -141,6 +141,22 @@ const ProductManagement: React.FC = () => {
     });
   };
 
+  const handleNewProductChange = (field: string, value: string | boolean) => {
+    setNewProduct(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleEditProductChange = (field: string, value: string | boolean | number) => {
+    if (selectedProduct) {
+      setSelectedProduct(prev => ({
+        ...prev!,
+        [field]: value
+      }));
+    }
+  };
+
   const handleEdit = (product: Product) => {
     setSelectedProduct(product);
     setIsEditModalOpen(true);
@@ -159,8 +175,8 @@ const ProductManagement: React.FC = () => {
             id="name"
             value={product.name}
             onChange={(e) => isEdit ? 
-              setSelectedProduct({...selectedProduct!, name: e.target.value}) :
-              setNewProduct({...product, name: e.target.value})
+              handleEditProductChange('name', e.target.value) :
+              handleNewProductChange('name', e.target.value)
             }
             placeholder="Enter product name"
           />
@@ -171,8 +187,8 @@ const ProductManagement: React.FC = () => {
             id="sku"
             value={product.sku}
             onChange={(e) => isEdit ? 
-              setSelectedProduct({...selectedProduct!, sku: e.target.value}) :
-              setNewProduct({...product, sku: e.target.value})
+              handleEditProductChange('sku', e.target.value) :
+              handleNewProductChange('sku', e.target.value)
             }
             placeholder="Enter SKU"
           />
@@ -185,8 +201,8 @@ const ProductManagement: React.FC = () => {
           id="description"
           value={product.description}
           onChange={(e) => isEdit ? 
-            setSelectedProduct({...selectedProduct!, description: e.target.value}) :
-            setNewProduct({...product, description: e.target.value})
+            handleEditProductChange('description', e.target.value) :
+            handleNewProductChange('description', e.target.value)
           }
           placeholder="Enter product description"
           rows={3}
@@ -200,8 +216,8 @@ const ProductManagement: React.FC = () => {
             id="barcode"
             value={product.barcode}
             onChange={(e) => isEdit ? 
-              setSelectedProduct({...selectedProduct!, barcode: e.target.value}) :
-              setNewProduct({...product, barcode: e.target.value})
+              handleEditProductChange('barcode', e.target.value) :
+              handleNewProductChange('barcode', e.target.value)
             }
             placeholder="Enter barcode"
           />
@@ -211,8 +227,8 @@ const ProductManagement: React.FC = () => {
           <Select
             value={product.category}
             onValueChange={(value) => isEdit ? 
-              setSelectedProduct({...selectedProduct!, category: value}) :
-              setNewProduct({...product, category: value})
+              handleEditProductChange('category', value) :
+              handleNewProductChange('category', value)
             }
           >
             <SelectTrigger>
@@ -234,8 +250,8 @@ const ProductManagement: React.FC = () => {
           <Select
             value={product.unitOfMeasure}
             onValueChange={(value) => isEdit ? 
-              setSelectedProduct({...selectedProduct!, unitOfMeasure: value}) :
-              setNewProduct({...product, unitOfMeasure: value})
+              handleEditProductChange('unitOfMeasure', value) :
+              handleNewProductChange('unitOfMeasure', value)
             }
           >
             <SelectTrigger>
@@ -256,8 +272,8 @@ const ProductManagement: React.FC = () => {
             type="number"
             value={product.costPrice}
             onChange={(e) => isEdit ? 
-              setSelectedProduct({...selectedProduct!, costPrice: parseFloat(e.target.value)}) :
-              setNewProduct({...product, costPrice: e.target.value})
+              handleEditProductChange('costPrice', parseFloat(e.target.value) || 0) :
+              handleNewProductChange('costPrice', e.target.value)
             }
             placeholder="0.00"
           />
@@ -269,8 +285,8 @@ const ProductManagement: React.FC = () => {
             type="number"
             value={product.sellingPrice}
             onChange={(e) => isEdit ? 
-              setSelectedProduct({...selectedProduct!, sellingPrice: parseFloat(e.target.value)}) :
-              setNewProduct({...product, sellingPrice: e.target.value})
+              handleEditProductChange('sellingPrice', parseFloat(e.target.value) || 0) :
+              handleNewProductChange('sellingPrice', e.target.value)
             }
             placeholder="0.00"
           />
@@ -283,8 +299,8 @@ const ProductManagement: React.FC = () => {
           id="imageUrl"
           value={product.imageUrl}
           onChange={(e) => isEdit ? 
-            setSelectedProduct({...selectedProduct!, imageUrl: e.target.value}) :
-            setNewProduct({...product, imageUrl: e.target.value})
+            handleEditProductChange('imageUrl', e.target.value) :
+            handleNewProductChange('imageUrl', e.target.value)
           }
           placeholder="Enter image URL"
         />
@@ -295,8 +311,8 @@ const ProductManagement: React.FC = () => {
         <Select
           value={product.supplier}
           onValueChange={(value) => isEdit ? 
-            setSelectedProduct({...selectedProduct!, supplier: value}) :
-            setNewProduct({...product, supplier: value})
+            handleEditProductChange('supplier', value) :
+            handleNewProductChange('supplier', value)
           }
         >
           <SelectTrigger>
@@ -315,8 +331,8 @@ const ProductManagement: React.FC = () => {
           id="isPerishable"
           checked={product.isPerishable}
           onCheckedChange={(checked) => isEdit ? 
-            setSelectedProduct({...selectedProduct!, isPerishable: checked as boolean}) :
-            setNewProduct({...product, isPerishable: checked as boolean})
+            handleEditProductChange('isPerishable', checked as boolean) :
+            handleNewProductChange('isPerishable', checked as boolean)
           }
         />
         <Label htmlFor="isPerishable">Is Perishable</Label>
@@ -330,8 +346,8 @@ const ProductManagement: React.FC = () => {
             type="number"
             value={product.shelfLifeDays}
             onChange={(e) => isEdit ? 
-              setSelectedProduct({...selectedProduct!, shelfLifeDays: parseInt(e.target.value)}) :
-              setNewProduct({...product, shelfLifeDays: e.target.value})
+              handleEditProductChange('shelfLifeDays', parseInt(e.target.value) || 0) :
+              handleNewProductChange('shelfLifeDays', e.target.value)
             }
             placeholder="Enter shelf life in days"
           />
@@ -348,7 +364,7 @@ const ProductManagement: React.FC = () => {
                 <Label htmlFor="warehouse">Warehouse *</Label>
                 <Select
                   value={product.warehouse}
-                  onValueChange={(value) => setNewProduct({...product, warehouse: value})}
+                  onValueChange={(value) => handleNewProductChange('warehouse', value)}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select warehouse" />
@@ -367,7 +383,7 @@ const ProductManagement: React.FC = () => {
                     id="quantityOnHand"
                     type="number"
                     value={product.quantityOnHand}
-                    onChange={(e) => setNewProduct({...product, quantityOnHand: e.target.value})}
+                    onChange={(e) => handleNewProductChange('quantityOnHand', e.target.value)}
                     placeholder="0"
                   />
                 </div>
@@ -377,7 +393,7 @@ const ProductManagement: React.FC = () => {
                     id="reorderPoint"
                     type="number"
                     value={product.reorderPoint}
-                    onChange={(e) => setNewProduct({...product, reorderPoint: e.target.value})}
+                    onChange={(e) => handleNewProductChange('reorderPoint', e.target.value)}
                     placeholder="0"
                   />
                 </div>
@@ -387,7 +403,7 @@ const ProductManagement: React.FC = () => {
                     id="minimumStock"
                     type="number"
                     value={product.minimumStock}
-                    onChange={(e) => setNewProduct({...product, minimumStock: e.target.value})}
+                    onChange={(e) => handleNewProductChange('minimumStock', e.target.value)}
                     placeholder="0"
                   />
                 </div>
