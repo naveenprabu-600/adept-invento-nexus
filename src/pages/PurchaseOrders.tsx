@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Plus, Eye, Edit, Package, Calendar, Truck } from 'lucide-react';
+import { Search, Plus, Eye, Edit, Package, Calendar, Truck, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
 
 interface PurchaseOrder {
   id: string;
@@ -15,8 +16,9 @@ interface PurchaseOrder {
   supplierName: string;
   orderDate: string;
   expectedDate: string;
+  actualDeliveryDate?: string;
   totalAmount: number;
-  status: 'DRAFT' | 'ORDERED' | 'RECEIVED' | 'CANCELLED';
+  status: 'DRAFT' | 'ORDERED' | 'READY_FOR_RECEIPT' | 'RECEIVED' | 'PARTIALLY_RECEIVED' | 'CANCELLED';
   createdBy: string;
   items: PurchaseOrderItem[];
 }
@@ -24,9 +26,34 @@ interface PurchaseOrder {
 interface PurchaseOrderItem {
   id: string;
   productName: string;
+  sku: string;
   quantity: number;
+  receivedQuantity?: number;
+  pendingQuantity?: number;
   unitCost: number;
   totalCost: number;
+}
+
+interface GRNItem {
+  purchaseOrderItemId: string;
+  productName: string;
+  sku: string;
+  orderedQuantity: number;
+  receivedQuantity: number;
+  pendingQuantity: number;
+  unitCost: number;
+}
+
+interface ItemLedger {
+  id: string;
+  date: string;
+  type: 'RECEIPT' | 'ISSUE' | 'ADJUSTMENT';
+  reference: string;
+  sku: string;
+  productName: string;
+  quantity: number;
+  location: string;
+  performedBy: string;
 }
 
 const mockPurchaseOrders: PurchaseOrder[] = [
@@ -37,20 +64,26 @@ const mockPurchaseOrders: PurchaseOrder[] = [
     orderDate: '2024-01-15',
     expectedDate: '2024-01-25',
     totalAmount: 15000,
-    status: 'ORDERED',
+    status: 'READY_FOR_RECEIPT',
     createdBy: 'John Manager',
     items: [
       {
         id: '1',
         productName: 'iPhone 14 Pro',
+        sku: 'IPH-14P-128-BLK',
         quantity: 15,
+        receivedQuantity: 0,
+        pendingQuantity: 15,
         unitCost: 800,
         totalCost: 12000
       },
       {
         id: '2',
         productName: 'iPad Air',
+        sku: 'IPD-AIR-64-GRY',
         quantity: 10,
+        receivedQuantity: 0,
+        pendingQuantity: 10,
         unitCost: 300,
         totalCost: 3000
       }
@@ -63,20 +96,26 @@ const mockPurchaseOrders: PurchaseOrder[] = [
     orderDate: '2024-01-14',
     expectedDate: '2024-01-24',
     totalAmount: 8500,
-    status: 'DRAFT',
+    status: 'READY_FOR_RECEIPT',
     createdBy: 'Sarah Manager',
     items: [
       {
         id: '3',
         productName: 'Samsung Galaxy S23',
+        sku: 'SAM-S23-256-WHT',
         quantity: 10,
+        receivedQuantity: 0,
+        pendingQuantity: 10,
         unitCost: 700,
         totalCost: 7000
       },
       {
         id: '4',
         productName: 'Galaxy Watch',
+        sku: 'SAM-GW-45-BLK',
         quantity: 5,
+        receivedQuantity: 0,
+        pendingQuantity: 5,
         unitCost: 300,
         totalCost: 1500
       }
@@ -95,13 +134,50 @@ const mockPurchaseOrders: PurchaseOrder[] = [
       {
         id: '5',
         productName: 'Organic Bananas',
+        sku: 'ORG-BAN-KG',
         quantity: 500,
+        receivedQuantity: 500,
+        pendingQuantity: 0,
         unitCost: 2.5,
         totalCost: 1250
       }
     ]
+  },
+  {
+    id: 'PO-2024-004',
+    supplierId: '4',
+    supplierName: 'Tech Supplies Ltd.',
+    orderDate: '2024-01-16',
+    expectedDate: '2024-01-26',
+    totalAmount: 12000,
+    status: 'READY_FOR_RECEIPT',
+    createdBy: 'Anna Manager',
+    items: [
+      {
+        id: '6',
+        productName: 'Laptop Dell XPS',
+        sku: 'DEL-XPS-13-SLV',
+        quantity: 8,
+        receivedQuantity: 0,
+        pendingQuantity: 8,
+        unitCost: 1200,
+        totalCost: 9600
+      },
+      {
+        id: '7',
+        productName: 'Wireless Mouse',
+        sku: 'LOG-MX3-BLK',
+        quantity: 20,
+        receivedQuantity: 0,
+        pendingQuantity: 20,
+        unitCost: 120,
+        totalCost: 2400
+      }
+    ]
   }
 ];
+
+const mockItemLedger: ItemLedger[] = [];
 
 const PurchaseOrders: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -110,7 +186,10 @@ const PurchaseOrders: React.FC = () => {
   const [dateRange, setDateRange] = useState('all');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isGRNModalOpen, setIsGRNModalOpen] = useState(false);
   const [selectedPO, setSelectedPO] = useState<PurchaseOrder | null>(null);
+  const [grnItems, setGrnItems] = useState<GRNItem[]>([]);
+  const [grnNotes, setGrnNotes] = useState('');
   const [newPO, setNewPO] = useState({
     supplier: '',
     orderDate: new Date().toISOString().split('T')[0],
@@ -139,8 +218,12 @@ const PurchaseOrders: React.FC = () => {
         return 'secondary';
       case 'ORDERED':
         return 'default';
+      case 'READY_FOR_RECEIPT':
+        return 'default';
       case 'RECEIVED':
         return 'default';
+      case 'PARTIALLY_RECEIVED':
+        return 'secondary';
       case 'CANCELLED':
         return 'destructive';
       default:
@@ -154,8 +237,12 @@ const PurchaseOrders: React.FC = () => {
         return 'text-secondary-text';
       case 'ORDERED':
         return 'text-primary';
+      case 'READY_FOR_RECEIPT':
+        return 'text-primary';
       case 'RECEIVED':
         return 'text-accent';
+      case 'PARTIALLY_RECEIVED':
+        return 'text-secondary-text';
       case 'CANCELLED':
         return 'text-destructive';
       default:
@@ -202,9 +289,85 @@ const PurchaseOrders: React.FC = () => {
     return newPO.items.reduce((total, item) => total + item.totalCost, 0);
   };
 
-  const handleReceiveStock = (poId: string) => {
-    console.log('Receiving stock for PO:', poId);
-    // In real app, this would update the PO status to RECEIVED and update inventory
+  const openGRNModal = (po: PurchaseOrder) => {
+    setSelectedPO(po);
+    const initialGrnItems: GRNItem[] = po.items.map(item => ({
+      purchaseOrderItemId: item.id,
+      productName: item.productName,
+      sku: item.sku,
+      orderedQuantity: item.quantity,
+      receivedQuantity: 0,
+      pendingQuantity: item.quantity,
+      unitCost: item.unitCost
+    }));
+    setGrnItems(initialGrnItems);
+    setIsGRNModalOpen(true);
+  };
+
+  const updateReceivedQuantity = (itemId: string, receivedQty: number) => {
+    setGrnItems(items => items.map(item => {
+      if (item.purchaseOrderItemId === itemId) {
+        const received = Math.min(receivedQty, item.orderedQuantity);
+        return {
+          ...item,
+          receivedQuantity: received,
+          pendingQuantity: item.orderedQuantity - received
+        };
+      }
+      return item;
+    }));
+  };
+
+  const submitGRN = () => {
+    if (!selectedPO) return;
+
+    const grnId = `GRN-${new Date().getFullYear()}-${String(Date.now()).slice(-3)}`;
+    const currentDate = new Date().toISOString().split('T')[0];
+    const currentDateTime = new Date().toLocaleString();
+    
+    // Create item ledger entries for each received item
+    grnItems.forEach(item => {
+      if (item.receivedQuantity > 0) {
+        const ledgerEntry: ItemLedger = {
+          id: `LED-${Date.now()}-${item.sku}`,
+          date: currentDateTime,
+          type: 'RECEIPT',
+          reference: grnId,
+          sku: item.sku,
+          productName: item.productName,
+          quantity: item.receivedQuantity,
+          location: 'Main Warehouse',
+          performedBy: 'Current User'
+        };
+        mockItemLedger.push(ledgerEntry);
+      }
+    });
+
+    // Update PO status based on received quantities
+    const allItemsFullyReceived = grnItems.every(item => item.receivedQuantity === item.orderedQuantity);
+    const anyItemsReceived = grnItems.some(item => item.receivedQuantity > 0);
+    
+    if (allItemsFullyReceived) {
+      selectedPO.status = 'RECEIVED';
+    } else if (anyItemsReceived) {
+      selectedPO.status = 'PARTIALLY_RECEIVED';
+    }
+    
+    selectedPO.actualDeliveryDate = currentDate;
+
+    console.log('GRN Created:', {
+      grnId,
+      poId: selectedPO.id,
+      supplier: selectedPO.supplierName,
+      items: grnItems,
+      notes: grnNotes,
+      itemLedgerEntries: mockItemLedger.filter(entry => entry.reference === grnId)
+    });
+
+    setIsGRNModalOpen(false);
+    setGrnItems([]);
+    setGrnNotes('');
+    setSelectedPO(null);
   };
 
   const handleCancelPO = (poId: string) => {
@@ -419,7 +582,9 @@ const PurchaseOrders: React.FC = () => {
                 <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="DRAFT">Draft</SelectItem>
                 <SelectItem value="ORDERED">Ordered</SelectItem>
+                <SelectItem value="READY_FOR_RECEIPT">Ready for Receipt</SelectItem>
                 <SelectItem value="RECEIVED">Received</SelectItem>
+                <SelectItem value="PARTIALLY_RECEIVED">Partially Received</SelectItem>
                 <SelectItem value="CANCELLED">Cancelled</SelectItem>
               </SelectContent>
             </Select>
@@ -493,13 +658,14 @@ const PurchaseOrders: React.FC = () => {
                     >
                       <Eye className="w-4 h-4" />
                     </Button>
-                    {po.status === 'ORDERED' && (
+                    {po.status === 'READY_FOR_RECEIPT' && (
                       <Button
-                        variant="outline"
+                        variant="default"
                         size="sm"
-                        onClick={() => handleReceiveStock(po.id)}
+                        onClick={() => openGRNModal(po)}
                       >
-                        <Truck className="w-4 h-4" />
+                        <FileText className="w-4 h-4 mr-1" />
+                        Create GRN
                       </Button>
                     )}
                   </div>
@@ -582,19 +748,144 @@ const PurchaseOrders: React.FC = () => {
               </div>
 
               <div className="flex justify-end space-x-2">
-                {selectedPO.status === 'ORDERED' && (
-                  <>
-                    <Button variant="outline" onClick={() => handleCancelPO(selectedPO.id)}>
-                      Cancel PO
-                    </Button>
-                    <Button onClick={() => handleReceiveStock(selectedPO.id)}>
-                      <Truck className="w-4 h-4 mr-2" />
-                      Receive Stock
-                    </Button>
-                  </>
+                {selectedPO.status === 'READY_FOR_RECEIPT' && (
+                  <Button onClick={() => {
+                    setIsViewModalOpen(false);
+                    openGRNModal(selectedPO);
+                  }}>
+                    <FileText className="w-4 h-4 mr-2" />
+                    Create GRN
+                  </Button>
+                )}
+                {(selectedPO.status === 'ORDERED' || selectedPO.status === 'READY_FOR_RECEIPT') && (
+                  <Button variant="outline" onClick={() => handleCancelPO(selectedPO.id)}>
+                    Cancel PO
+                  </Button>
                 )}
                 <Button variant="outline" onClick={() => setIsViewModalOpen(false)}>
                   Close
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* GRN Creation Modal */}
+      <Dialog open={isGRNModalOpen} onOpenChange={setIsGRNModalOpen}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Create Goods Receipt Note (GRN)</DialogTitle>
+          </DialogHeader>
+          {selectedPO && (
+            <div className="space-y-6">
+              {/* PO Information */}
+              <div className="bg-muted rounded-lg p-4">
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label className="text-sm text-muted-foreground">Purchase Order</Label>
+                    <p className="text-foreground font-medium">{selectedPO.id}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm text-muted-foreground">Supplier</Label>
+                    <p className="text-foreground">{selectedPO.supplierName}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm text-muted-foreground">Expected Date</Label>
+                    <p className="text-foreground">{selectedPO.expectedDate}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* GRN Items */}
+              <div>
+                <h4 className="text-lg font-medium text-foreground mb-4">Receive Items</h4>
+                <div className="border rounded-lg">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Product</TableHead>
+                        <TableHead>SKU</TableHead>
+                        <TableHead>Ordered Qty</TableHead>
+                        <TableHead>Received Qty</TableHead>
+                        <TableHead>Pending Qty</TableHead>
+                        <TableHead>Unit Cost</TableHead>
+                        <TableHead>Total Value</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {grnItems.map((item) => (
+                        <TableRow key={item.purchaseOrderItemId}>
+                          <TableCell className="font-medium">{item.productName}</TableCell>
+                          <TableCell className="text-secondary-text">{item.sku}</TableCell>
+                          <TableCell className="text-secondary-text">{item.orderedQuantity}</TableCell>
+                          <TableCell>
+                            <Input
+                              type="number"
+                              min="0"
+                              max={item.orderedQuantity}
+                              value={item.receivedQuantity}
+                              onChange={(e) => updateReceivedQuantity(item.purchaseOrderItemId, parseInt(e.target.value) || 0)}
+                              className="w-20"
+                            />
+                          </TableCell>
+                          <TableCell className="text-secondary-text">{item.pendingQuantity}</TableCell>
+                          <TableCell className="text-secondary-text">${item.unitCost.toFixed(2)}</TableCell>
+                          <TableCell className="text-secondary-text">
+                            ${(item.receivedQuantity * item.unitCost).toFixed(2)}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+
+              {/* GRN Summary */}
+              <div className="bg-muted rounded-lg p-4">
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label className="text-sm text-muted-foreground">Total Items</Label>
+                    <p className="text-foreground font-medium">{grnItems.length}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm text-muted-foreground">Items Received</Label>
+                    <p className="text-foreground font-medium">
+                      {grnItems.filter(item => item.receivedQuantity > 0).length}
+                    </p>
+                  </div>
+                  <div>
+                    <Label className="text-sm text-muted-foreground">Total Received Value</Label>
+                    <p className="text-foreground font-medium">
+                      ${grnItems.reduce((total, item) => total + (item.receivedQuantity * item.unitCost), 0).toFixed(2)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Notes */}
+              <div className="space-y-2">
+                <Label htmlFor="grnNotes">Notes</Label>
+                <Textarea
+                  id="grnNotes"
+                  placeholder="Enter any notes about this receipt..."
+                  value={grnNotes}
+                  onChange={(e) => setGrnNotes(e.target.value)}
+                  rows={3}
+                />
+              </div>
+
+              {/* Actions */}
+              <div className="flex justify-end space-x-2">
+                <Button variant="outline" onClick={() => setIsGRNModalOpen(false)}>
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={submitGRN}
+                  disabled={!grnItems.some(item => item.receivedQuantity > 0)}
+                >
+                  <FileText className="w-4 h-4 mr-2" />
+                  Create GRN
                 </Button>
               </div>
             </div>
